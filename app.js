@@ -16,18 +16,7 @@ const db = mysql.createConnection({
     database:"o2"
 })
 
-app.get('/topic', function(req, res){
-    let sql = 'SELECT * FROM topic';
-    db.query(sql,function(err, result ){
-        if(err){
-            console.log(err)
-        }
-        else {
-            console.log(result[0])
-            res.send("Success")
-        }
-    })
-})
+
 // console.log(path.resolve(__dirname + '/views'))
 //C:\apps\userlistweb\views 폴더를 뷰 템플릿 기본 폴더로 
 app.set('views',path.resolve(__dirname+'/views'))
@@ -37,7 +26,39 @@ app.set('view engine', 'ejs')
 
 //urlencoded 미들웨어 등록
 app.use(bodyParser.urlencoded({extended:true}))
+app.use(bodyParser.json())
 
+
+app.get('/topic', function(req, res){
+    let sql = 'SELECT * FROM topic';
+    db.query(sql,function(err, result ){
+        if(err){
+            console.log(err)
+        }
+        else {
+            console.log(result)
+            res.send(result)
+        }
+    })
+})
+
+app.post('/topic', function(req, res){
+    let sql = "INSERT INTO `topic` (`title`, `description`, `author`) VALUES (?,?,?);"
+    // console.log(req.body.title)
+    // res.send(req.body.title)
+    let title = req.body.title
+    let description = req.body.description
+    let author = req.body.author
+    db.query(sql ,[title,description, author], function(err, result){
+        if(err){
+            console.log(err)
+        }
+        else {
+            console.log(result)
+            res.send("Success")
+        }
+    }) 
+})
 //http://localhost:8080/data로 get방식의 요청 처리
 app.get('/data', function(request , response ) {
     console.log(request.body)
