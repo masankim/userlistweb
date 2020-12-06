@@ -255,9 +255,9 @@ http://localhost:8080/topics 로 get방식으로 요청을 하면
 
 mysql에 접속하여 topic에 있는 contents를 모두 조회해서 console창에 띄워 보는 시나리오를 생각해 보자
 
-![image-20201205170650025](https://user-images.githubusercontent.com/75194770/101239132-6b19bb00-3728-11eb-899d-6b0ce63e3800.png)
 
 
+![image-20201206142746158](https://user-images.githubusercontent.com/75194770/101272412-41679f00-37cf-11eb-96a7-7147f86a4b82.png)
 
 mysql 라이브러를 활용해서 mysql 접속한다.
 
