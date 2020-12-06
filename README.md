@@ -287,7 +287,7 @@ const db = mysql.createConnection({
 })
 
 
-app.get('/topics', function(req, res){
+app.get('/topic', function(req, res){
     let sql = 'SELECT * FROM topic';
     db.query(sql,function(err, result ){
         if(err){
@@ -349,7 +349,7 @@ db 에 저장되도록 요청
 
 
 ```javascript
-app.post('/topic', function(req, res){
+app.post("/topic" ,app.post('/topic', function(req, res){
     let sql = "INSERT INTO `topic` (`title`, `description`, `author`) VALUES (?,?,?);"
     // console.log(req.body.title)
     // res.send(req.body.title)
@@ -365,7 +365,7 @@ app.post('/topic', function(req, res){
             res.send("Success")
         }
     }) 
-})
+}))
 ```
 
 
@@ -666,4 +666,39 @@ router.post('/topic/add' , function(req, res) {
     
 ...
 ```
+
+
+
+#### index.ejs 페이지에서 각각의 타이틀에 삭제 버튼을 추가하고 삭제 버튼을 누루면 삭제가 되는 기능을 구현 한다.
+
+index.ejs의 삭제버튼 추가 
+
+```html
+<!-- 삭제버트 추가 -->
+          <a href="/topic/<%= topics[i].id %>/delete" ><button onclick="confirm('정말삭제하시겠습니까')">삭제하기</button></a>
+```
+
+
+
+
+
+apiRouter.js
+
+```javascript
+router.get('/topic/:id/delete', function(req, res){
+    let sql = 'DELETE FROM `topic` WHERE id = (?);'
+    let ids = req.params.id
+    db.query(sql, [ids],function(err, result){
+        if(err) {
+            console.log(err)
+        } else {
+            res.redirect('/topic')
+        }
+    })
+})
+```
+
+
+
+
 
