@@ -3,18 +3,11 @@ const express  = require('express')
 const path = require('path')
 const app  = express()
 require('ejs')
-
+const apiRouter = require('./router/apiRouter')
 const bodyParser = require('body-parser')
-const mysql = require('mysql')
 
-// mysql.createConnection(객체의형태로 접속 정보)
-const db = mysql.createConnection({
-    host:'localhost',
-    port:3306,
-    user:'root',
-    password:'1234',
-    database:"o2"
-})
+
+
 
 
 // console.log(path.resolve(__dirname + '/views'))
@@ -28,19 +21,9 @@ app.set('view engine', 'ejs')
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(bodyParser.json())
 
+app.use('/' ,apiRouter)
 
-app.get('/topic', function(req, res){
-    let sql = 'SELECT * FROM topic';
-    db.query(sql,function(err, result ){
-        if(err){
-            console.log(err)
-        }
-        else {
-            console.log(result)
-            res.send(result)
-        }
-    })
-})
+
 
 app.post('/topic', function(req, res){
     let sql = "INSERT INTO `topic` (`title`, `description`, `author`) VALUES (?,?,?);"
@@ -60,10 +43,10 @@ app.post('/topic', function(req, res){
     }) 
 })
 //http://localhost:8080/data로 get방식의 요청 처리
-app.get('/data', function(request , response ) {
-    console.log(request.body)
-    response.render('index' , {data:"김태경"})
-})
+// app.get('/data', function(request , response ) {
+//     console.log(request.body)
+//     response.render('index' , {data:"김태경"})
+// })
 
 
 
