@@ -370,3 +370,300 @@ app.post("/topic" ,app.post('/topic', function(req, res){
 
 
 
+라우팅 파일을 만들어 app.js에서 미들웨어로 등록한다.
+
+router폴더에 apiRouter.js를 추가하고 다음과 같이 코드를 생성한다.
+
+전에 app.js에 있었던 mysql관련등 일부 코드를 이곳으로 옮긴다.
+
+경로 : http://localhost:8080/topic/add '
+
+method :GET
+
+index.ejs 파일을 documents로 변환해서 클라이언트에게 전송한다.
+
+router/apiRouter.js
+
+```jvascript
+const express = require('express')
+const router  = express.Router()
+const mysql = require('mysql')
+
+// mysql.createConnection(객체의형태로 접속 정보)
+const db = mysql.createConnection({
+    host:'localhost',
+    port:3306,
+    user:'root',
+    password:'1234',
+    database:"o2"
+})
+
+router.get('/topic/add', function(req, res){
+    let sql = 'SELECT * FROM topic';
+    db.query(sql,function(err, result ){
+        if(err){
+            console.log(err)
+        }
+        else {
+            console.log(result)
+            res.render('index' , {topics:result})
+        }
+    })
+})
+
+
+module.exports = router;
+```
+
+
+
+views/index.ejs
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>안녕하세요</h1>
+    <%= topics[0] %>
+</body>
+</html>
+```
+
+
+
+
+
+좀더 역동감 있게 보여주기 위해서 콘텐츠를  for문을 이용해서 순환시킨다.
+
+```html
+<!-- //index.ejs -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <h1><a href='/topic'></a>Server Side Javascript</a></h1>
+    <ol>
+      <% for(var i = 0; i< topics.length; i++){ %> 
+        <!-- // 전달 받은 topics를 통하여 글목록 보여주기 -->
+        <li>
+          <a href='/topic/<%= topics[i].id %>'>
+             <!-- // 링크를 누르면, db에 저장된 각 글의 id 값을 통하여 아래의 article 태그 안에 글의 상세 내용을 보여주게 한다. -->
+            <%= topics[i].title %>
+          </a>
+        </li>
+      <% }; %>
+    </ol>
+    <article>
+      
+        <!-- // 글 목록을 누를지 않았을때,(id 값이 없을때 환영한다는 내용을 띄운다.) -->
+        <h2>Welcome</h2>
+         This is server side javascript tutorial.
+     
+    </article>
+   
+  </body>
+</html>
+```
+
+
+
+각 제목 목록을 클릭하면  title목록에 따라 상세내용이 하단에 출력되도록 구현한다.
+
+각 title을 클릭하면  http://localhost:8080/topic/<id>   이 경로로 get방식으로 요청이 들어오므로
+
+router/apiRouter.js 코드를 추가 
+
+```javascript
+router.get(['/topic', '/topic/:id'] , function(req, res){
+    let sql = 'SELECT * FROM topic';
+    db.query(sql, function(err, results){
+        let ids = req.params.id
+        let sql = "SELECT * FROM topic WHERE id = ?"
+        if(ids) {
+            db.query(sql, [ids] ,function(err, result){
+                if(err) {
+                    console.log(err)
+                    res.status(500).send('Internal Server Error')
+                } else {
+                    console.log(result)
+                    res.render('index', {topics:results, topic:result[0]})
+                }
+            })
+        } else {
+            res.render('index', {topics:results, topic:undefined})
+        }
+    })
+})
+```
+
+
+
+views/index.ejs
+
+```html
+<!-- //view.ejs -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <h1><a href='/topic'></a>Server Side Javascript</a></h1>
+    <ol>
+      <% for(var i = 0; i< topics.length; i++){ %> 
+        <!-- // 전달 받은 topics를 통하여 글목록 보여주기 -->
+        <li>
+          <a href='/topic/<%= topics[i].id %>'>
+             <!-- // 링크를 누르면, db에 저장된 각 글의 id 값을 통하여 아래의 article 태그 안에 글의 상세 내용을 보여주게 한다. -->
+            <%= topics[i].title %>
+          </a>
+        </li>
+      <% }; %>
+    </ol>
+    <article>
+      <% if(topic){ %> 
+        <!-- // 글 목록을 눌렀을때, topic객체를 get방식으로 넘겨 받을 수 있고, -->
+        <h2><%= topic.title %></h2>  
+        <!-- topic 객체의 title키를 통하여 제목을 알 수 있고, -->
+        <p> <%= topic.description %> </p> 
+        <!-- description키를 통하여 내용을 알 수 있고, -->
+        <p><%= 'by ' + topic.author %></p> 	
+        <!-- author키를 통하여 저자를 알 수 있다. -->
+      <% } else { %> 
+        <!-- // 글 목록을 누를지 않았을때,(id 값이 없을때 환영한다는 내용을 띄운다.) -->
+        <h2>Welcome</h2>
+         This is server side javascript tutorial.
+      <% } %>
+    </article>
+   
+  </body>
+</html>
+```
+
+
+
+와 같이 수정하면 다음과 같은 결과가 나온다.
+
+![](https://user-images.githubusercontent.com/75194770/101270128-7d900500-37b9-11eb-953c-62027c04b669.png)
+
+게시판에 추가 버튼을 누루면 다음과 같은 페이지로이동
+
+![image-20201206115955303](https://user-images.githubusercontent.com/75194770/101270245-951bbd80-37ba-11eb-8eb0-68c9b904d301.png)
+
+
+
+게시판에 추가버튼을 누루면 글을 추가하는 기능을 구현한다.
+
+views/index.ejs 에 추가버튼을 생성하기 위해 다음과 같은 코드를 추가한다.
+
+```html
+....  
+<a href="/topic/add"><button style="size:10px" >추가</button></a>
+</body>
+...
+```
+
+
+
+views/add.ejs 추가하고 다음과 같이 코드를 작성한다.
+
+타이틀 , 내용, 저자 등을 입력하고 제출을 누루면 POST방식으로 http://localhost:8080/topic/add 요청이 들어가는 폼을 구현한다.
+
+title input 은 type="text" name은 title 
+
+description 은 input 태그아닌 좀더 긴 글을 입력할수 있는 textarea태그를 적용 name은 description 
+
+author input type은 text name은 author 
+
+```html
+<form action="요청경로" method="요청방식">
+    <input type="" name="request.body.name으로 정할 이름" plackholder="" />
+    ..
+    ...
+    <input type="submit"  value="제출"/>
+</form>
+```
+
+
+
+
+
+views/add.ejs
+
+```html
+<!-- //edit.ejs -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <h1><a href='/topic'>Server Side Javascript</a></h1>
+    <ol>
+      <% for(var i=0; i<topics.length;i++){ %>
+        <li>
+          <a href='/topic/<%- topics[i].id -%>'>
+            <%= topics[i].title %>
+          </a>
+        </li>
+      <% }; %>
+    </ol>
+    <article>
+      <form action="/topic/add" method="POST">
+        <p><input type="text" name="title"  placeholder="title" ></p> // value를 통하여 전달받은 topic객체의(수정해야할) 데이터를 표시할 수 있다.
+        <p><textarea name="description" rows="6" cols="50" placeholder="description"> </textarea></p>// textarea는 태그들 사이에 데이터를 입력해야 표시가능.(	rows는 행이고, cols는 열이다 이걸 통하여 textarea의 크기를 조정한다. )
+        <p><input type="text" name="author"  placeholder="author"></p>
+        <p><input type="submit" value="추가확정"></p>
+      </form>
+    </article>
+    <ul>
+        <li><a href="/topic/add">add</a></li>
+    </ul>
+  </body>
+</html>
+```
+
+
+
+추가확정 버튼을 누루면 
+
+http://localhost:8080/topic/add
+
+방식 : POST 
+
+request에 body부분에 추가할 콘텐츠를 보내준다.
+
+그걸 받아서 서버에서 처리할 코드를 구현하다.
+
+```javascript
+...
+
+router.post('/topic/add' , function(req, res) {
+    // console.log(req.body)
+    let sql = "INSERT INTO `topic` (`title`, `description`, `author`) VALUES (?,?,?);"
+    let title = req.body.title
+    let description = req.body.description
+    let author = req.body.author
+    db.query(sql ,[title,description, author], function(err, result){
+        if(err){
+            console.log(err)
+        }
+        else {
+            console.log(result)
+            res.redirect('/topic')
+        }
+    }) 
+    
+...
+```
+
