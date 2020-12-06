@@ -287,7 +287,7 @@ const db = mysql.createConnection({
 })
 
 
-app.get('/topic', function(req, res){
+app.get('/topics', function(req, res){
     let sql = 'SELECT * FROM topic';
     db.query(sql,function(err, result ){
         if(err){
@@ -349,7 +349,7 @@ db 에 저장되도록 요청
 
 
 ```javascript
-app.post("/topic" ,app.post('/topic', function(req, res){
+app.post('/topic', function(req, res){
     let sql = "INSERT INTO `topic` (`title`, `description`, `author`) VALUES (?,?,?);"
     // console.log(req.body.title)
     // res.send(req.body.title)
@@ -365,7 +365,7 @@ app.post("/topic" ,app.post('/topic', function(req, res){
             res.send("Success")
         }
     }) 
-}))
+})
 ```
 
 
