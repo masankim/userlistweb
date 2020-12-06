@@ -312,7 +312,7 @@ o2 database 내용
 
 실행결과물 
 
-![image-20201205180229687](C:\Users\82108\AppData\Roaming\Typora\typora-user-images\image-20201205180229687.png)
+![image-20201205180229687](https://user-images.githubusercontent.com/75194770/101272477-e2565a00-37cf-11eb-8df7-faeda5b98b68.png)
 
 
 
